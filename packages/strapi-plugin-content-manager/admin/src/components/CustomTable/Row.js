@@ -1,15 +1,21 @@
 import React, { memo, useCallback } from 'react';
 import { withRouter } from 'react-router';
+import { FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
 import { get, isEmpty, isNull, isObject, toLower, toString } from 'lodash';
 import moment from 'moment';
+
 import { IcoContainer, useGlobalContext } from 'strapi-helper-plugin';
+import pluginId from '../../pluginId';
 import useListView from '../../hooks/useListView';
 
 import CustomInputCheckbox from '../CustomInputCheckbox';
 import MediaPreviewList from '../MediaPreviewList';
 
 import { ActionContainer, Truncate, Truncated } from './styledComponents';
+
+const isDateType = type =>
+  ['date', 'time', 'datetime', 'timestamp'].includes(type);
 
 const getDisplayedValue = (type, value, name) => {
   switch (toLower(type)) {
@@ -40,10 +46,7 @@ const getDisplayedValue = (type, value, name) => {
           ? JSON.stringify(value)
           : value;
 
-      return moment
-        .parseZone(date)
-        .utc()
-        .format('dddd, MMMM Do YYYY');
+      return moment.parseZone(date).utc();
     }
     case 'password':
       return '••••••••';
@@ -90,17 +93,41 @@ function Row({ goTo, isBulkable, row, headers }) {
         </td>
       )}
       {headers.map(header => {
-        return (
-          <td key={header.name}>
-            {get(schema, ['attributes', header.name, 'type']) !== 'media' ? (
-              <Truncate>
-                <Truncated>{memoizedDisplayedValue(header.name)}</Truncated>
-              </Truncate>
-            ) : (
+        const type = get(schema, ['attributes', header.name, 'type']);
+
+        if (type === 'media') {
+          return (
+            <td key={header.name}>
               <MediaPreviewList
                 files={memoizedDisplayedValue(header.name)}
               ></MediaPreviewList>
-            )}
+            </td>
+          );
+        }
+
+        if (isDateType(type)) {
+          return (
+            <td key={header.name}>
+              <Truncate>
+                <Truncated>
+                  <FormattedMessage
+                    id={`${pluginId}.components.CustomTable.Row.localDateFormat`}
+                  >
+                    {localFormat =>
+                      memoizedDisplayedValue(header.name).format(localFormat)
+                    }
+                  </FormattedMessage>
+                </Truncated>
+              </Truncate>
+            </td>
+          );
+        }
+
+        return (
+          <td key={header.name}>
+            <Truncate>
+              <Truncated>{memoizedDisplayedValue(header.name)}</Truncated>
+            </Truncate>
           </td>
         );
       })}

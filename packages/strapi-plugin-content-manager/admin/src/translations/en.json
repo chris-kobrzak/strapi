@@ -6,6 +6,7 @@
   "EditRelations.title": "Relational data",
   "components.AddFilterCTA.add": "Filters",
   "components.AddFilterCTA.hide": "Filters",
+  "components.CustomTable.Row.localDateFormat": "dddd, MMMM Do YYYY",
   "components.DraggableAttr.edit": "Click to edit",
   "components.DynamicZone.add-compo": "Add to {componentName}",
   "components.DynamicZone.pick-compo": "Pick one component",
